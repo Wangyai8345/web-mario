@@ -18,15 +18,15 @@ export default class PlayerController extends cc.Component {
     @property
     coyoteTime: number = 0.2;
     @property
-    smallSize: number = 1.5;
+    smallSize: number = 1.3;
     @property
-    bigSize: number = 2.2;
+    bigSize: number = 2;
     @property
     invincibleTime: number = 1;
 
 
     private moveH: number = 0;
-    moveAble: boolean = true;
+    isMoveable: boolean = false;
 
     private isGrounded: boolean = false;
     private isJumping: boolean = false;
@@ -62,11 +62,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    protected start(): void {
-    }
-
-
-    onDestroy() {
+    protected onDestroy() {
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     }
@@ -79,15 +75,10 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    movePlayer(){
+    private movePlayer(){
         let speedX = this.moveH * this.speed;
         
-        // Left Boundary
-        if(this.node.x <= -460 && speedX < 0){
-            speedX = 0;
-        }
-        
-        if(!this.moveAble){
+        if(!this.isMoveable){
             speedX = 0;
         }
 
@@ -95,7 +86,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    changeSprite(){
+    private changeSprite(){
         let speedX = this.rb.linearVelocity.x;
         
         // Flip horizontal direction
@@ -109,29 +100,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    freezePlayer(){
-        this.moveAble = false;
-
-        // this.scheduleOnce(() => {
-        //     if (cc.isValid(this.rb)) {
-        //         this.rb.type = cc.RigidBodyType.Static;
-        //     }
-        // }, 0); 
-    }
-
-
-    unfreezePlayer(){
-        this.moveAble = true;
-
-        this.scheduleOnce(() => {
-            if (cc.isValid(this.rb)) {
-                this.rb.type = cc.RigidBodyType.Dynamic;
-            }
-        }, 0); 
-    }
-
-
-    playAnimation(clipName: string = ""){
+    private playAnimation(clipName: string = ""){
         if(this.currentAnimName !== clipName){
             this.currentAnimName = clipName;
             this.anim.play(clipName);
@@ -148,7 +117,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    onKeyDown(event: cc.Event.EventKeyboard) {
+    private onKeyDown(event: cc.Event.EventKeyboard) {
         switch (event.keyCode) {
             case cc.macro.KEY.space:
                 this.jump();
@@ -166,7 +135,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    onKeyUp(event: cc.Event.EventKeyboard) {
+    private onKeyUp(event: cc.Event.EventKeyboard) {
         switch (event.keyCode) {
             case cc.macro.KEY.a:
                 if(this.moveH === -1) this.moveH = 0;
@@ -178,10 +147,10 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    jump(){
+    private jump(){
         if(!this.isGrounded) return;
         if(this.isJumping) return;
-        if(!this.moveAble) return;
+        if(!this.isMoveable) return;
         
         this.rb.linearVelocity = cc.v2(this.rb.linearVelocity.x, this.jumpSpeed);
         this.isJumping = true;
@@ -189,7 +158,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    onBeginContact(contact: cc.PhysicsContact, self: cc.Collider, other: cc.Collider){
+    protected onBeginContact(contact: cc.PhysicsContact, self: cc.Collider, other: cc.Collider){
         // floor
         if(other.tag === 1){
             // if the collsion is on bottom
@@ -203,10 +172,15 @@ export default class PlayerController extends cc.Component {
         else if(other.tag === 67){
             GameManager.instance.playerDead();
         }
+        // Win Flag
+        else if(other.tag === 69){
+            this.isInvincible = true;
+            GameManager.instance.playerWin();
+        }
     }   
 
 
-    onEndContact(contact: cc.PhysicsContact, self: cc.Collider, other: cc.Collider){
+    protected onEndContact(contact: cc.PhysicsContact, self: cc.Collider, other: cc.Collider){
         // floor
         if(other.tag === 1 && self.tag === 1){
             if(this.groundColliders.has(other)){
@@ -225,7 +199,9 @@ export default class PlayerController extends cc.Component {
     }
 
     
-    damagedByMobs(){
+    // _____________________________________ APIs _____________________________________
+
+    public damagedByMobs(){
         if(this.isInvincible) return;
 
         if(this.poweredUp){
@@ -242,7 +218,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    powerUp(){
+    public powerUp(){
         this.poweredUp = true;
         this.node.scaleX = this.bigSize;
         this.node.scaleY = this.bigSize;
@@ -251,7 +227,7 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    powerDown(){
+    public powerDown(){
         this.poweredUp = false;
         this.node.scaleX = this.smallSize;
         this.node.scaleY = this.smallSize;
@@ -260,9 +236,10 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    respawn(){
+    public respawn(){
         this.node.x = this.spawnX;
         this.node.y = this.spawnY;
+
         this.poweredUp = false;
         this.isInvincible = false;
         this.node.scaleX = this.smallSize;
@@ -277,7 +254,7 @@ export default class PlayerController extends cc.Component {
     }
   
 
-    deathAnimation(){
+    public deathAnimation(){
         this.scheduleOnce(() => {
             let colliders = this.getComponents(cc.PhysicsCollider);
             colliders.forEach(collider => {
@@ -289,13 +266,20 @@ export default class PlayerController extends cc.Component {
     }
 
 
-    debug(){
+    public freeze(){
+        this.isMoveable = false;
+    }
+
+
+    public unfreeze(){
+        this.isMoveable = true;
+    }
+
+
+    public debug(){
         // todo
         if(this.poweredUp){
             this.powerDown();
-        }
-        else{
-            this.powerUp();
         }
     }
 }

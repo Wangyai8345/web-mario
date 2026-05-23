@@ -1,5 +1,5 @@
 
-import GameManager from "./GameManager";
+import GameManager, { GAMESTATE } from "./GameManager";
 import PlayerController from "./PlayerController";
 
 const {ccclass, property} = cc._decorator;
@@ -14,29 +14,27 @@ export default class Mushroom extends cc.Component {
     startMoveTime: number = 1;
 
 
-    private curStartMoveTime: number = 0;
     private moving: boolean = false;
     private moveDir: number = 0;
     private beCollected: boolean = false;
 
     private rb: cc.RigidBody = null;
 
+
     start(){
         this.rb = this.getComponent(cc.RigidBody);
-    }
-
-    protected update(dt: number): void {
-        if(this.moving){
-            this.move();
-            return;
-        }
-
-        this.curStartMoveTime += dt;
-
-        if(this.curStartMoveTime >= this.startMoveTime){
+        
+        this.scheduleOnce(()=>{
             this.moving = true;
             this.moveDir = (Math.random() <= 0.5) ? -1 : 1;
-        }        
+        }, this.startMoveTime)
+    }
+
+
+    protected update(dt: number): void {
+        if(GameManager.instance.getGameState() === GAMESTATE.READY) this.node.destroy();
+        
+        if(this.moving) this.move();
     }
 
 

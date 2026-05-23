@@ -12,6 +12,9 @@ export default class QuestionBlock extends cc.Component {
     private currentAnimName: string = "";
 
     @property(cc.SpriteFrame)
+    originalSpriteFrame: cc.SpriteFrame = null;
+    
+    @property(cc.SpriteFrame)
     activatedSpriteFrame: cc.SpriteFrame = null;
 
     @property(cc.Prefab)
@@ -24,15 +27,14 @@ export default class QuestionBlock extends cc.Component {
     }
 
     start() {
-        this.playAnimation("question_block");
-        this.isMushroom = (Math.random() <= 0.33);
+        this.disactivate();
     }
 
     // update (dt) {}
 
     
     onBeginContact(contact: cc.PhysicsContact, self: cc.Collider, other: cc.Collider){
-        if(other.node.name === "Player"){
+        if(other.node.name === "Player" && other.tag === 0){
             if(contact.getWorldManifold().normal.y < 0){
                 this.activate();
             }
@@ -65,6 +67,14 @@ export default class QuestionBlock extends cc.Component {
             GameManager.instance.displayScoreOnScreen(100, this.node.x, this.node.y + 30);
             AudioManager.instance.playCoin();
         }
+    }
+
+
+    disactivate(){
+        this.isActivated = false;
+        this.playAnimation("question_block");
+        this.isMushroom = (Math.random() <= 0.33);
+        this.getComponent(cc.Sprite).spriteFrame = this.originalSpriteFrame;
     }
 
 

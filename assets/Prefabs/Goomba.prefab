@@ -165,7 +165,7 @@
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 40,
+      "width": 37,
       "height": 8
     },
     "_id": ""
@@ -187,9 +187,9 @@
     "_offset": {
       "__type__": "cc.Vec2",
       "x": 0,
-      "y": 1
+      "y": -1
     },
-    "_radius": 20,
+    "_radius": 17,
     "_id": ""
   },
   {
@@ -200,11 +200,11 @@
       "__id__": 1
     },
     "_enabled": true,
+    "aliveSpriteFrame": {
+      "__uuid__": "95f72137-d4bf-4e78-815d-550d790ef67f"
+    },
     "deadSpriteFrame": {
       "__uuid__": "9a1e71fd-c7c7-4b31-a745-8d71384d803c"
-    },
-    "scoreItemPrefab": {
-      "__uuid__": "35708268-f71b-4d9e-8f80-e365949270e3"
     },
     "speed": 50,
     "deathAnimTime": 1,

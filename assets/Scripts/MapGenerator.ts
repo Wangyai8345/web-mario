@@ -1,11 +1,10 @@
+import GameManager from "./GameManager";
+
 const {ccclass, property} = cc._decorator;
 
 @ccclass
 export default class MapGenerator extends cc.Component {
 
-    @property(cc.TextAsset)
-    mapDataFile: cc.TextAsset = null;
-    
     @property
     tileSize: number = 40;
     
@@ -23,7 +22,7 @@ export default class MapGenerator extends cc.Component {
     @property(cc.Prefab)
     floorPrefab: cc.Prefab = null;
     @property(cc.Prefab)
-    floor2Prefab: cc.Prefab = null;
+    wallPrefab: cc.Prefab = null;
     @property(cc.Prefab)
     questionBlockPrefab: cc.Prefab = null;
     @property(cc.Prefab)
@@ -33,16 +32,30 @@ export default class MapGenerator extends cc.Component {
     @property(cc.Prefab)
     platformPrefab: cc.Prefab = null;;
     @property(cc.Prefab)
+    winFlagPrefab: cc.Prefab = null;;
+    @property(cc.Prefab)
     goombaPrefeb: cc.Prefab = null;;
 
 
-    prefabMaper(char: string){
+
+    public entityNodes: cc.Node[] = [];
+
+
+    public generate(mapTxt: string){
+        if(mapTxt){
+            this.generateBackground(mapTxt);
+            this.generateMap(mapTxt);
+        }
+    }
+
+
+    private prefabMaper(char: string){
         switch(char){
             case "F":
                 return this.floorPrefab; 
             case "W":
-                return this.floor2Prefab;
-            case "P":
+                return this.wallPrefab;
+            case "-":
                 return this.platformPrefab;
             case "S":
                 return this.shortPipePrefab;
@@ -50,56 +63,72 @@ export default class MapGenerator extends cc.Component {
                 return this.questionBlockPrefab;
             case "B":
                 return this.blockPrefab;
+            case "P":
+                return this.winFlagPrefab;
             case "1":
                 return this.goombaPrefeb;
             default:
                 return null;
         }
     }
+    
 
-
-    start(){
-        if(this.mapDataFile){
-            this.generateBackground(this.mapDataFile.text);
-            this.generateMap(this.mapDataFile.text);
-        }
+    private isEntity(char: string){
+        return (char === "1" || char === "Q");
     }
 
-    generateMap(textData: string) {
+
+    private generateMap(textData: string) {
         let lines = textData.trim().split('\n');
-        
-        for (let r = 0; r < lines.length; r++) {
-            let line = lines[r].trim();
+        let R = lines.length - 1;
+
+        GameManager.instance.setGameTime(parseInt(lines[0]));
+
+        for (let r = 0; r < R; r++) {
+            // Left border
+            this.instantiatePrefab(r, -1, R, this.prefabMaper("F"), false);
+            
+            let line = lines[r+1].trim();
             if (!line) continue;
 
             for(let c = 0; c < line.length; c++){
                 let tileChar = line[c];
                 let tilePrefab = this.prefabMaper(tileChar);
+                let isEntity = this.isEntity(tileChar);
 
-                if (tilePrefab) {
-                    let tileNode = cc.instantiate(tilePrefab);
-                    
-                    // Scale
-                    tileNode.scaleX *= this.tileSize / 40;
-                    tileNode.scaleY *= this.tileSize / 40;
-                    
-                    // Position
-                    let posX = this.offsetX + c * this.tileSize;
-                    let posY = this.offsetY + (lines.length - 1 - r) * this.tileSize;
-                    posX += this.tileSize / 2;
-                    posY += this.tileSize / 2;
-                    tileNode.setPosition(posX, posY);
-
-                    // Add child
-                    this.node.addChild(tileNode);
-                }
+                this.instantiatePrefab(r, c, R, tilePrefab, isEntity);
             }
         }
     }
 
-    generateBackground(textData: string){
+
+    private instantiatePrefab(r: number, c: number, R: number, tilePrefab: cc.Prefab, isEntity: boolean){
+        if(!tilePrefab) return;
+
+        let tileNode = cc.instantiate(tilePrefab);
+        
+        // Scale
+        tileNode.scaleX *= this.tileSize / 40;
+        tileNode.scaleY *= this.tileSize / 40;
+        
+        // Position
+        let posX = this.offsetX + c * this.tileSize;
+        let posY = this.offsetY + (R - 1 - r) * this.tileSize;
+        posX += this.tileSize / 2;
+        posY += this.tileSize / 2;
+        tileNode.setPosition(posX, posY);
+
+        // Add child
+        this.node.addChild(tileNode);
+
+        // Add entity nodes
+        if(isEntity) this.entityNodes.push(tileNode);
+    }
+
+
+    private generateBackground(textData: string){
         let lines = textData.trim().split('\n');
-        let totalWidth = lines[0].length * this.tileSize;
+        let totalWidth = lines[lines.length - 1].length * this.tileSize;
 
         let bgNeeded = totalWidth / this.bgWidth + 1;
 

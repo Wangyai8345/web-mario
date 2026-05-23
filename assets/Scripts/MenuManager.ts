@@ -1,40 +1,56 @@
+import AudioManager from "./AudioManager";
+
 const {ccclass, property} = cc._decorator;
+
 
 @ccclass
 export default class MenuManager extends cc.Component {
-    @property(cc.Button)
-    level1Button: cc.Button = null;
-    
-    @property(cc.Button)
-    level2Button: cc.Button = null;
+    private playButton: cc.Node = null;
+    private leaderboardButton: cc.Node = null;
+    private signoutButton: cc.Node = null;
 
-
-    
-    start(){
-        if(this.level1Button){
-            let eh1 = new cc.Component.EventHandler();
-            eh1.target = this.node;
-            eh1.component = "MenuManager";
-            eh1.handler = "goLevel1";
-            this.level1Button.clickEvents.push(eh1);
-        }
+    protected onLoad(){
+        this.playButton = cc.find("Canvas/Play Button");
+        this.leaderboardButton = cc.find("Canvas/Leaderboard Button");
+        this.signoutButton = cc.find("Canvas/Sign Out Button");
         
-        if(this.level2Button){
-            let eh2 = new cc.Component.EventHandler();
-            eh2.target = this.node;
-            eh2.component = "MenuManager";
-            eh2.handler = "goLevel2";
-            this.level2Button.clickEvents.push(eh2);
-        }
+        this.registerButtonEvents();
     }
 
-    goLevel1(){
-        cc.sys.localStorage.setItem("selected_level", "level1");
-        cc.director.loadScene("load");
+
+    protected start(): void {
+        AudioManager.instance.playBgm1();
     }
 
-    goLevel2(){
-        cc.sys.localStorage.setItem("selected_level", "level2");
-        cc.director.loadScene("load");
+    private registerButtonEvents(){
+        this.playButton.on(cc.Node.EventType.TOUCH_END, this.changeToLevelSelectScene, this);
+        this.leaderboardButton.on(cc.Node.EventType.TOUCH_END, this.changeToLeaderboardScene, this);
+        this.signoutButton.on(cc.Node.EventType.TOUCH_END, this.signOut, this);
+    }
+
+
+    private changeToLevelSelectScene(){
+        this.disableAllButton();
+        cc.director.loadScene('level_select');
+    }
+    
+    
+    private changeToLeaderboardScene(){
+        // TODO
+        // this.disableAllButton();
+        // cc.director.loadScene('leaderboard');
+    }
+    
+    
+    private async signOut(){
+        this.disableAllButton();
+        await firebase.auth().signOut();
+        cc.director.loadScene('auth');
+    }
+
+    private disableAllButton(){
+        this.playButton.getComponent(cc.Button).interactable = false;
+        this.leaderboardButton.getComponent(cc.Button).interactable = false;
+        this.signoutButton.getComponent(cc.Button).interactable = false;
     }
 }
