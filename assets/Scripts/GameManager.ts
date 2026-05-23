@@ -71,6 +71,8 @@ export default class GameManager extends cc.Component {
    
 
     protected onLoad(): void {
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+
         // singleton
         if (GameManager.instance === null) {
             GameManager.instance = this;
@@ -83,8 +85,17 @@ export default class GameManager extends cc.Component {
 
 
     protected onDestroy(): void {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+
         if (GameManager.instance === this) {
             GameManager.instance = null;
+        }
+    }
+
+
+    onKeyDown(event: any) {
+        if (event.keyCode === cc.macro.KEY.escape) {
+            this.backToLevelSelect();
         }
     }
 
@@ -190,6 +201,8 @@ export default class GameManager extends cc.Component {
         this.currentLevel = cc.sys.localStorage.getItem('level');
         this.lives = this.totalLives;
         this.score = 0;
+        this.isWin = false;
+        this.isLose = false;
         this.updateLevelLabel();
         this.updateTimeLabel();
         this.updateScoreLabel();
@@ -374,6 +387,11 @@ export default class GameManager extends cc.Component {
 
     setGameTime(time: number){
         this.GAME_TIME = time;
+    }
+
+
+    backToLevelSelect(){
+        cc.director.loadScene('level_select');
     }
 
 

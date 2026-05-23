@@ -1,6 +1,11 @@
 {
   "rules": {
     ".read": "auth != null",
-    ".write": "auth != null"
+    ".write": "auth != null",
+    "Leaderboard": {
+      "level1": { ".indexOn": "score" },
+      "level2": { ".indexOn": "score" },
+      "level3": { ".indexOn": "score" }
+    }
   }
 }

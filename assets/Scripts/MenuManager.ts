@@ -36,9 +36,8 @@ export default class MenuManager extends cc.Component {
     
     
     private changeToLeaderboardScene(){
-        // TODO
-        // this.disableAllButton();
-        // cc.director.loadScene('leaderboard');
+        this.disableAllButton();
+        cc.director.loadScene('leaderboard');
     }
     
     

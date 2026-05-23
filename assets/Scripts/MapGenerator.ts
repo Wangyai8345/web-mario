@@ -12,6 +12,9 @@ export default class MapGenerator extends cc.Component {
     bgWidth: number = 1200;
     
     @property
+    bgHeight: number = 800;
+    
+    @property
     offsetX: number = 0;
 
     @property
@@ -128,23 +131,26 @@ export default class MapGenerator extends cc.Component {
 
     private generateBackground(textData: string){
         let lines = textData.trim().split('\n');
+        let totalHeight = lines.length * this.tileSize;
         let totalWidth = lines[lines.length - 1].length * this.tileSize;
 
-        let bgNeeded = totalWidth / this.bgWidth + 1;
+        let bgNeededX = totalWidth / this.bgWidth + 2;
+        let bgNeededY = totalHeight / this.bgHeight + 2;
 
-        for(let i = 0; i < bgNeeded; i++){
-            let bgNode = cc.instantiate(this.background);
-
-            bgNode.scaleX = (i % 2 == 0) ? 1 : -1;
-
-            bgNode.x = 500 + this.bgWidth * i;
-            bgNode.y = 250;
-            // bgNode.setPosition(posX, posY);
-
-            bgNode.width = this.bgWidth;
-            bgNode.height = this.bgWidth * 2 / 3;
-
-            this.node.addChild(bgNode);
+        for(let i = 0; i < bgNeededX; i++){
+            for(let j = 0; j < bgNeededY; j++){
+                let bgNode = cc.instantiate(this.background);
+    
+                bgNode.scaleX = (i % 2 == 0) ? 1 : -1;
+    
+                bgNode.x = 500 + this.bgWidth * i;
+                bgNode.y = 250 + this.bgHeight * j;
+    
+                bgNode.width = this.bgWidth;
+                bgNode.height = this.bgHeight;
+    
+                this.node.addChild(bgNode);
+            }
         }
     }
 }
