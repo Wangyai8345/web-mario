@@ -260,7 +260,6 @@ export default class GameManager extends cc.Component {
         
         for(let node of entityNodes){
             if(!cc.isValid(node)) continue;
-            
             let goomba = node.getComponent(GoombaController);
             if(goomba){
                 goomba.respawn();
@@ -386,7 +385,8 @@ export default class GameManager extends cc.Component {
 
 
     setGameTime(time: number){
-        this.GAME_TIME = time;
+        if(!time) this.GAME_TIME = 100;
+        else this.GAME_TIME = time;
     }
 
 

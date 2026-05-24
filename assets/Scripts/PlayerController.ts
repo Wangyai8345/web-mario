@@ -14,9 +14,9 @@ export default class PlayerController extends cc.Component {
     @property
     speed: number = 100;
     @property
-    jumpSpeed: number = 280;
+    jumpSpeed: number = 300;
     @property
-    coyoteTime: number = 0.2;
+    coyoteTime: number = 0.25;
     @property
     smallSize: number = 1.3;
     @property
@@ -280,6 +280,9 @@ export default class PlayerController extends cc.Component {
         // TODO: remove this
         if(this.poweredUp){
             this.powerDown();
+        }
+        else{
+            this.powerUp();
         }
     }
 }

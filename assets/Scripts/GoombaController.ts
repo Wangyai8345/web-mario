@@ -79,8 +79,8 @@ export default class GoombaController extends cc.Component {
         if(other.node.name === "Player"){
             if(!this.isAlive) return;
 
-            // Hit on head
-            if(contact.getWorldManifold().points[0].y > this.node.y + 10){
+            let hitOnHead = contact.getWorldManifold().points[0].y > this.node.y + 9;
+            if(hitOnHead){
                 this.onKilled();
             }
             else{
@@ -90,7 +90,7 @@ export default class GoombaController extends cc.Component {
         }
         // Out of bound trigger
         else if(other.tag == 67){
-            this.node.destroy();
+            // this.node.destroy();
         }
 
         // Bounce left & right
@@ -173,12 +173,11 @@ export default class GoombaController extends cc.Component {
     public respawn(){
         if(!this.isAlive){
             this.isAlive = true;
-            this.node.active = true;
             this.enableCollision();
+            this.node.active = true;
             this.schedule(this.walkAnim, this.walkAnimCycle, cc.macro.REPEAT_FOREVER, 0);
             this.getComponent(cc.Sprite).spriteFrame = this.aliveSpriteFrame;
         }
-        
         this.moveDir = -1;
         this.node.x = this.spawnX;
         this.node.y = this.spawnY;

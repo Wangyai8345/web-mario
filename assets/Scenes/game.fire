@@ -174,6 +174,8 @@
     "bgm1": {
       "__uuid__": "0c6b8256-b16a-4faf-85bd-8237048b2681"
     },
+    "bgm2": null,
+    "bgm3": null,
     "coin": {
       "__uuid__": "b90052e6-af9e-408c-ae35-a1f03d3e7e25"
     },
@@ -1272,7 +1274,6 @@
     "player": {
       "__id__": 26
     },
-    "leftBoundary": 0,
     "_id": "f6RpKaNq1OyoR4WFnd8Igs"
   },
   {
@@ -1490,8 +1491,8 @@
     "spawnX": -400,
     "spawnY": -160,
     "speed": 100,
-    "jumpSpeed": 280,
-    "coyoteTime": 0.2,
+    "jumpSpeed": 300,
+    "coyoteTime": 0.25,
     "smallSize": 1.3,
     "bigSize": 2,
     "invincibleTime": 1,
@@ -1792,6 +1793,7 @@
     "_enabled": true,
     "tileSize": 45,
     "bgWidth": 1200,
+    "bgHeight": 800,
     "offsetX": 0,
     "offsetY": 0,
     "background": {
