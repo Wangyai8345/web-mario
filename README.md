@@ -1,4 +1,4 @@
-# Assignment 2
+# Software Studio Assignment 2 - Web Mario
 
 
 ## Scoring
