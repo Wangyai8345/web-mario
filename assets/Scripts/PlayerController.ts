@@ -277,12 +277,11 @@ export default class PlayerController extends cc.Component {
 
 
     public debug(){
-        // TODO: remove this
         if(this.poweredUp){
             this.powerDown();
         }
-        else{
-            this.powerUp();
-        }
+        // else{
+        //     this.powerUp();
+        // }
     }
 }

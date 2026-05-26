@@ -24,6 +24,8 @@
 ## How to Play
 Press A/D to move left and right, SPACE to jump
 
+Press T will power down if the player is powered up, avoiding stucking in blocks
+
 Player has 3 lives per game
 
 Top 5 players with the highest score in the level will be displayed on leaderboard
