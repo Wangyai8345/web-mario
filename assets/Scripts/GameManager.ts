@@ -401,53 +401,52 @@ export default class GameManager extends cc.Component {
 
         const uid = user.uid;
         const username = user.email.split('@')[0];
-        
-        
-        // Save player's own highscore
-        const playerRef = firebase.database().ref('Players/' + uid + '/HighScore');
-        
-        try {
-            const snapshot = await playerRef.once('value');
-            const dbScore = snapshot.val() || -1;
-            
-            if (this.score > dbScore) {
-                await playerRef.set(this.score);
-            }
-        }
-        catch (err) {
-            cc.error("Error saving score to firebase database: ", err);
-        }
-        
-        
+
         // Save to leaderboard if top 5
         const leaderboardRef = firebase.database().ref('Leaderboard/' + `level${this.currentLevel}`);
-        
+
         try {
             const snapshot = await leaderboardRef.orderByChild('score').once('value');
-        
+
             let currentBoard: { key: string, score: number }[] = [];
+            let myOldScore: number = null;
+
             snapshot.forEach((child) => {
                 currentBoard.push({ key: child.key, score: child.val().score });
+                if (child.key === uid) {
+                    myOldScore = child.val().score;
+                }
             });
+
+            // No update if this.score <= myOldScore
+            if (myOldScore !== null && this.score <= myOldScore) return; 
 
             let shouldSave = false;
             let keyToRemove: string = null;
 
+            // Leaderboard not full
             if (currentBoard.length < 5) {
                 shouldSave = true;
-            }
-            else{
+            } 
+            // Leaderboard has 5 records
+            else {
                 const lowestTopScore = currentBoard[0].score;
-                if (this.score > lowestTopScore) {
+                
+                // this player is already in the record
+                if (myOldScore !== null) {
+                    shouldSave = true;
+                }
+                // this player is not in the record and > lowestTopScore
+                else if (this.score > lowestTopScore) {
                     shouldSave = true;
                     keyToRemove = currentBoard[0].key;
                 }
             }
 
-            if(shouldSave){
+            if (shouldSave) {
                 let updates: any = {};
                 
-                if (keyToRemove && keyToRemove !== uid) {
+                if (keyToRemove) {
                     updates[keyToRemove] = null; 
                 }
                 
